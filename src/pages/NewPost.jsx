@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, FormControl, FormLabel, Input, Textarea, VStack, useToast } from "@chakra-ui/react";
+import { Box, Button, FormControl, FormLabel, Input, Textarea, VStack, useToast, useColorModeValue } from "@chakra-ui/react";
 import { useNavigate } from 'react-router-dom';
 
 const NewPost = ({ addPost }) => {
@@ -9,6 +9,9 @@ const NewPost = ({ addPost }) => {
   const [image, setImage] = useState('');
   const navigate = useNavigate();
   const toast = useToast();
+
+  const bgColor = useColorModeValue("white", "gray.800");
+  const textColor = useColorModeValue("gray.800", "white");
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -42,7 +45,7 @@ const NewPost = ({ addPost }) => {
   };
 
   return (
-    <Box maxWidth="800px" margin="auto" mt={8}>
+    <Box maxWidth="800px" margin="auto" mt={8} bg={bgColor} color={textColor} p={6} borderRadius="md">
       <form onSubmit={handleSubmit}>
         <VStack spacing={4}>
           <FormControl isRequired>
