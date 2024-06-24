@@ -1,14 +1,32 @@
 import React from 'react';
-import { Box, Container, Flex, VStack, Heading, Text, Link, Input, Button, useColorModeValue, useColorMode, Switch } from "@chakra-ui/react";
-import { FaSearch, FaTwitter, FaFacebook, FaInstagram } from 'react-icons/fa';
+import { Box, Container, Flex, VStack, Heading, Text, Link, Input, Button, useColorModeValue, useColorMode, Switch, IconButton, AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader, AlertDialogContent, AlertDialogOverlay } from "@chakra-ui/react";
+import { FaSearch, FaTwitter, FaFacebook, FaInstagram, FaTrash } from 'react-icons/fa';
 import { Link as RouterLink } from 'react-router-dom';
 
-const Index = ({ posts }) => {
+const Index = ({ posts, deletePost, isAdmin, toast }) => {
   const { colorMode, toggleColorMode } = useColorMode();
   const bgColor = useColorModeValue("gray.50", "gray.900");
   const textColor = useColorModeValue("gray.800", "gray.100");
   const headerBgColor = useColorModeValue("white", "gray.800");
   const cardBgColor = useColorModeValue("white", "gray.700");
+
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [postToDelete, setPostToDelete] = React.useState(null);
+  const onClose = () => setIsOpen(false);
+  const cancelRef = React.useRef();
+
+  const handleDeleteConfirm = () => {
+    if (postToDelete) {
+      deletePost(postToDelete);
+      toast({
+        title: "Post deleted",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+    setIsOpen(false);
+  };
 
   return (
     <Box bg={bgColor} minHeight="100vh">
@@ -38,7 +56,19 @@ const Index = ({ posts }) => {
           <VStack as="main" spacing={8} align="stretch" flex={2}>
             {posts.map((post) => (
               <Box key={post.id} bg={cardBgColor} p={6} borderRadius="md" boxShadow="md">
-                <Heading as="h2" size="xl" mb={4}>{post.title}</Heading>
+                <Flex justify="space-between" align="center" mb={4}>
+                  <Heading as="h2" size="xl">{post.title}</Heading>
+                  {isAdmin && (
+                    <IconButton
+                      icon={<FaTrash />}
+                      aria-label="Delete post"
+                      onClick={() => {
+                        setPostToDelete(post.id);
+                        setIsOpen(true);
+                      }}
+                    />
+                  )}
+                </Flex>
                 <Text mb={4}>{post.content.substring(0, 200)}...</Text>
                 <Button colorScheme="blue">Read More</Button>
               </Box>
@@ -85,6 +115,33 @@ const Index = ({ posts }) => {
           </Flex>
         </Container>
       </Box>
+
+      <AlertDialog
+        isOpen={isOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Delete Post
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Are you sure? You can't undo this action afterwards.
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onClose}>
+                Cancel
+              </Button>
+              <Button colorScheme="red" onClick={handleDeleteConfirm} ml={3}>
+                Delete
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </Box>
   );
 };
